@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+# Wrapper: activates the localcast venv and runs chat.py from anywhere.
+# Symlink or copy this to ~/.local/bin/chat and chmod +x it.
+source ~/localcast_env/bin/activate
+python ~/code/localcast/chat.py "$@"
