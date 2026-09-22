@@ -1,12 +1,14 @@
-# nix6 Environments
+# nix6 Environments — v2
 
 A complete workflow for setting up Python + GitHub work on nix6 (Intel i5-6500, Ubuntu 24.04). Written once, followed forever.
+
+**v2 changes:** Adds APT package installs (git, gh weren't pre-installed on a fresh Ubuntu 24.04). Collapses SSH key setup into `gh auth login` (one step, not two). Adds an explicit gate between Parts 1 and 2. Adds a preflight check at the start of Part 2.
 
 Three parts:
 
 - **Part 1** — one-time machine setup. Do this once, and nix6 is ready for any Python + Git + GitHub project.
 - **Part 2** — the reusable per-project pattern. Follow this for every new project.
-- **Part 3** — worked example: setting up `localcast` (persistent local-model characters) from scratch.
+- **Part 3** — worked example: setting up `localcast` from scratch.
 
 Each step has a **checkpoint** — a command that confirms it worked before you move on.
 
@@ -16,7 +18,24 @@ Each step has a **checkpoint** — a command that confirms it worked before you 
 
 Do these once, ever. After this, nix6 is set up for any Python + Git + GitHub work.
 
-### 1.1 Git identity
+**DO ALL OF PART 1 BEFORE ANY OF PART 2.** Otherwise `git init` runs before `init.defaultBranch` is set and you get stuck renaming branches.
+
+### 1.1 Install the tools
+
+Fresh Ubuntu 24.04 doesn't have `git` or `gh`. Get them:
+
+```bash
+sudo apt update
+sudo apt install -y git gh
+```
+
+**Checkpoint:**
+```bash
+git --version && gh --version
+```
+Should print versions for both.
+
+### 1.2 Git identity + defaults
 
 ```bash
 git config --global user.name "IHoggan"
@@ -27,67 +46,44 @@ git config --global pull.rebase false
 
 **Checkpoint:**
 ```bash
-git config --global --list | grep user
+git config --global --list | grep -E "user|init|pull"
 ```
-Should show `user.name=IHoggan` and `user.email=iain.hoggan1170@gmail.com`.
+Should show your name, email, `init.defaultbranch=main`, `pull.rebase=false`.
 
----
+### 1.3 GitHub authentication + SSH key (single step)
 
-### 1.2 SSH key for GitHub
+`gh auth login` can generate an SSH key AND upload it to GitHub for you. One command replaces the old two-step dance.
 
 ```bash
-# Generate the key (no passphrase — press Enter when asked)
-ssh-keygen -t ed25519 -C "iain.hoggan1170@gmail.com" -f ~/.ssh/id_ed25519 -N ""
-
-# Start the agent and add the key
-eval "$(ssh-agent -s)"
-ssh-add ~/.ssh/id_ed25519
-
-# Print the public key
-cat ~/.ssh/id_ed25519.pub
+gh auth login
 ```
 
-Copy the output (starts with `ssh-ed25519 ...`).
+Answer the prompts in this order:
+- **What account do you want to log into?** → `GitHub.com`
+- **What is your preferred protocol for Git operations?** → `SSH`
+- **Generate a new SSH key to add to your GitHub account?** → `Yes`
+- **Enter a passphrase for your new SSH key:** → press Enter (empty passphrase)
+- **Title for your SSH key:** → `nix6`
+- **How would you like to authenticate GitHub CLI?** → `Login with a web browser`
+- Copy the one-time code shown → press Enter → browser opens → paste code → **Authorize**
 
-Go to <https://github.com/settings/keys> → **New SSH key** → title: `nix6` → paste → **Add SSH key**.
+**Checkpoints:**
+```bash
+gh auth status
+```
+Should show `Logged in to github.com account IHoggan`.
 
-**Checkpoint:**
 ```bash
 ssh -T git@github.com
 ```
-Answer `yes` when it asks about known_hosts. Success:
+Answer `yes` when it asks about known_hosts. Should print:
 ```
 Hi IHoggan! You've successfully authenticated, but GitHub does not provide shell access.
 ```
 
----
-
-### 1.3 GitHub CLI
-
-Lets you create repos from the terminal instead of the web.
-
-```bash
-sudo apt install -y gh
-gh auth login
-```
-
-Answer the prompts:
-- **GitHub.com**
-- **SSH**
-- **Skip uploading key** (already done in 1.2)
-- **Login with a web browser** → opens Firefox → paste the one-time code
-
-**Checkpoint:**
-```bash
-gh auth status
-```
-Should say `Logged in to github.com account IHoggan`.
-
----
-
 ### 1.4 Make sure `~/.local/bin` is on PATH
 
-Ubuntu usually has this by default, but check and create the directory:
+Needed later for CLI wrappers.
 
 ```bash
 mkdir -p ~/.local/bin
@@ -102,17 +98,32 @@ echo $PATH | tr ':' '\n' | grep -q "$HOME/.local/bin" && echo "PATH OK" || {
 ```bash
 echo $PATH | tr ':' '\n' | grep local
 ```
-Should show `/home/iain/.local/bin`. If it doesn't, open a fresh terminal or run `source ~/.bashrc`.
+Should show `/home/iain/.local/bin`.
 
 ---
 
-**Part 1 done.** These four steps never need repeating on nix6.
+**Part 1 done.** These four sections never need repeating on nix6.
 
 ---
 
 ## Part 2 — Per-project workflow
 
-Follow this pattern every time you start a new Python + GitHub project. Substitute `<project>` for the project name (e.g. `localcast`).
+Follow this pattern for every new Python + GitHub project. Substitute `<project>` for the project name.
+
+### 2.0 Preflight — is Part 1 done?
+
+Run this before starting a new project:
+
+```bash
+git --version >/dev/null 2>&1 && \
+gh --version >/dev/null 2>&1 && \
+git config --global user.name >/dev/null 2>&1 && \
+gh auth status >/dev/null 2>&1 && \
+echo "Part 1 OK — ready for a new project" || \
+echo "Part 1 incomplete — do that first"
+```
+
+If it says `Part 1 incomplete`, go back and do Part 1. Don't try to muddle through — that's what leaves branches called `master` when they should be `main`.
 
 ### 2.1 Create the venv
 
@@ -135,7 +146,7 @@ python -c "import <one-of-your-deps>; print('OK')"
 mkdir -p ~/code/<project>
 cd ~/code/<project>
 
-# Copy every project file from ~/Downloads (or wherever they landed)
+# Copy every project file from ~/Downloads
 cp ~/Downloads/<file1> .
 cp ~/Downloads/<file2> .
 # ... etc
@@ -144,13 +155,12 @@ cp ~/Downloads/<file2> .
 chmod +x <script1> <script2>
 ```
 
-`mkdir -p` creates parent directories as needed — you don't need to make `~/code/` separately first.
+`mkdir -p` creates parent directories as needed — no separate `mkdir ~/code`.
 
 **Checkpoint:**
 ```bash
 ls -la
 ```
-Confirms all your files are present with the right permissions.
 
 ### 2.3 Initialise git and commit
 
@@ -160,22 +170,19 @@ git add .
 git commit -m "Initial commit — <one-line description>"
 ```
 
+Because Part 1.2 set `init.defaultBranch main`, the branch will already be `main` — no rename needed.
+
+**Checkpoint:**
+```bash
+git branch --show-current
+```
+Prints `main`.
+
 ### 2.4 Push to GitHub
 
-**With `gh` (recommended):**
 ```bash
 gh repo create IHoggan/<project> --public --source=. --remote=origin --push \
   --description "<short description>"
-```
-
-**Without `gh` (manual fallback):**
-```bash
-# 1. Create the repo in the browser: https://github.com/new
-#    Name: <project>, Public, no README/gitignore/licence
-# 2. Then:
-git branch -M main
-git remote add origin git@github.com:IHoggan/<project>.git
-git push -u origin main
 ```
 
 **Checkpoint:**
@@ -198,13 +205,24 @@ Should print `/home/iain/.local/bin/<wrapper-name>`.
 
 ---
 
-**That's the pattern.** Five steps for any new project.
+**That's the pattern.** Five steps for any new project, plus a preflight.
 
 ---
 
 ## Part 3 — Worked example: localcast
 
-The Part 2 pattern applied to a real project. Follow these exact commands.
+The Part 2 pattern applied to a real project.
+
+### 3.0 Preflight
+
+```bash
+git --version >/dev/null 2>&1 && \
+gh --version >/dev/null 2>&1 && \
+git config --global user.name >/dev/null 2>&1 && \
+gh auth status >/dev/null 2>&1 && \
+echo "Part 1 OK — ready" || \
+echo "Do Part 1 first"
+```
 
 ### 3.1 Create the venv
 
@@ -218,26 +236,23 @@ pip install requests rich
 ```bash
 python -c "import requests, rich; print('OK')"
 ```
-Prints `OK`.
 
-### 3.2 Create the project folder and copy files in
+### 3.2 Create the folder and copy files in
 
-Download these six files from the conversation and put them in `~/Downloads`:
+Download these six files from the conversation into `~/Downloads`:
 - `chat.py`
 - `README.md`
 - `.gitignore`
 - `migrate.sh`
-- `chat` (shell wrapper, no extension)
-- `nix6_environments.md` (this document)
+- `chat`
+- `nix6_environments.md` (this document, latest version)
 
 Then:
 
 ```bash
 mkdir -p ~/code/localcast
 cd ~/code/localcast
-
 cp ~/Downloads/{chat.py,README.md,.gitignore,migrate.sh,chat,nix6_environments.md} .
-
 chmod +x chat.py chat migrate.sh
 ```
 
@@ -245,7 +260,7 @@ chmod +x chat.py chat migrate.sh
 ```bash
 ls -la
 ```
-Should show six files. The executable ones (`chat.py`, `chat`, `migrate.sh`) show `x` in the permissions column.
+Six files, three executable.
 
 ### 3.3 Initialise git and commit
 
@@ -255,50 +270,40 @@ git add .
 git commit -m "Initial commit — persistent local-model characters on Ollama"
 ```
 
+**Checkpoint:**
+```bash
+git branch --show-current
+```
+Prints `main`.
+
 ### 3.4 Push to GitHub
 
-**With `gh`:**
 ```bash
 gh repo create IHoggan/localcast --public --source=. --remote=origin --push \
   --description "Persistent local-model characters running on Ollama"
 ```
 
-**Without `gh`:**
-```bash
-# 1. Create the repo at https://github.com/new
-#    Name: localcast, Public, no README/gitignore/licence
-# 2. Then:
-git branch -M main
-git remote add origin git@github.com:IHoggan/localcast.git
-git push -u origin main
-```
-
 **Checkpoint:**
-Visit <https://github.com/IHoggan/localcast>. All six files visible, README rendering underneath.
+Visit <https://github.com/IHoggan/localcast>. All six files visible, README rendering.
 
-### 3.5 Install the `chat` wrapper on PATH
+### 3.5 Install the `chat` wrapper
 
 ```bash
 cp ~/code/localcast/chat ~/.local/bin/chat
 chmod +x ~/.local/bin/chat
-```
-
-**Checkpoint:**
-```bash
 which chat
 ```
-Prints `/home/iain/.local/bin/chat`. If it prints nothing, open a fresh terminal or run `source ~/.bashrc`.
+
+Prints `/home/iain/.local/bin/chat`.
 
 ### 3.6 Migrate existing personas
-
-Your `~/bubba/` currently has flat `.txt` files (dave.txt, bubba_glasgow.txt, etc). `migrate.sh` moves them into per-character folders that localcast expects.
 
 ```bash
 cd ~/code/localcast
 ./migrate.sh
 ```
 
-Expected output:
+Expected:
 ```
 migrating: bubba_glasgow.txt  ->  bubba_glasgow/
 migrating: bubba_pro.txt      ->  bubba_pro/
@@ -308,83 +313,50 @@ migrating: expert.txt         ->  expert/
 
 **Checkpoint:**
 ```bash
-ls ~/bubba/
 ls ~/bubba/dave/
 ```
-The first shows folders (not `.txt` files). The second shows `system.txt`, `diary.md`, `config.json`.
+Should show `system.txt`, `diary.md`, `config.json`.
 
 ### 3.7 First run
 
 ```bash
 chat --list
-```
-Lists your four characters, each with `diary: 0 chars` and `history: 0 turns`.
-
-```bash
 chat dave
 ```
 
-Have a conversation. Tell Dave something durable — like "Maker's got a Land Rover Defender." Reference it later in the same chat. `/exit` when done.
-
-On exit, you'll see `Updating diary…` then `Proposed additions saved. Review on next start.`
-
-```bash
-chat dave
-```
-
-This time it shows Dave's pending diary additions and asks keep/edit/discard. Pick `keep`.
-
-```bash
-chat --diary dave
-```
-Shows Dave's diary — the durable facts he now carries into every future session.
-
-**Every future `chat dave`** injects that diary above his persona. He'll act like he genuinely remembers.
+Have a conversation, `/exit`, run `chat dave` again to see the pending diary review and confirm memory works end-to-end.
 
 ---
 
 ## Part 4 — Ongoing development
 
-### 4.1 Small changes
-
-Standard git flow:
+### Small changes
 
 ```bash
-cd ~/code/localcast
+cd ~/code/<project>
 # Edit files
 git add <files>
 git commit -m "Short imperative message"
 git push
 ```
 
-Commit messages: imperative present ("Add /forget command" not "Added /forget command"). Under 60 characters for the subject line. Add a blank line and a longer body if needed.
-
-### 4.2 Bigger changes — work on a branch
+### Feature branches for bigger changes
 
 ```bash
 git checkout -b <feature-name>
 # ... work, commit, work, commit ...
 git push -u origin <feature-name>
-gh pr create --fill  # or open a PR in the browser
-```
-
-Merge via GitHub (Squash and merge keeps main history tidy), then locally:
-
-```bash
+gh pr create --fill
+# Merge via GitHub (Squash and merge)
 git checkout main
 git pull
 git branch -d <feature-name>
 ```
 
-### 4.3 Deleting a repo
-
-If a project turns out to be a false start:
+### Deleting a project
 
 ```bash
-# Delete on GitHub
 gh repo delete IHoggan/<project> --yes
-
-# Delete locally
 rm -rf ~/code/<project>
 rm -rf ~/<project>_env
 rm -f ~/.local/bin/<wrapper-name>
@@ -394,41 +366,48 @@ rm -f ~/.local/bin/<wrapper-name>
 
 ## Part 5 — Troubleshooting
 
-### `gh: command not found`
-- Not installed. `sudo apt install -y gh`.
+### `git: command not found` or `gh: command not found`
+Part 1.1 not done. `sudo apt install -y git gh`.
+
+### `Please tell me who you are` when committing
+Part 1.2 not done. Set `user.name` and `user.email`.
+
+### First commit lands on `master` instead of `main`
+Part 1.2's `init.defaultBranch main` wasn't set before `git init` ran. Rename:
+```bash
+git branch -m master main
+```
+Then re-run Part 1.2 so future repos don't hit this again.
 
 ### `Permission denied (publickey)` when pushing
-- SSH key not registered with GitHub. Rerun `ssh -T git@github.com` — if it fails, redo section 1.2.
+SSH key not set up or not registered with GitHub. Rerun Part 1.3.
+
+### `gh: To get started with GitHub CLI, please run: gh auth login`
+Part 1.3 not done. Run `gh auth login`.
 
 ### `chat: command not found` (or any wrapper)
-- `~/.local/bin` not on PATH in current shell. `source ~/.bashrc` or open a fresh terminal.
+`~/.local/bin` not on PATH in current shell. `source ~/.bashrc` or open a fresh terminal.
 
 ### `ModuleNotFoundError` when running a Python script
-- venv not active. The wrapper script activates it automatically — if you're running `python <script>.py` directly, `source ~/<project>_env/bin/activate` first.
+venv not active. The wrapper script activates it automatically — if running `python <script>.py` directly, `source ~/<project>_env/bin/activate` first.
 
 ### `Ollama isn't responding on http://localhost:11434`
-- Ollama service isn't running. `systemctl status ollama` — if inactive, `sudo systemctl start ollama`.
+`systemctl status ollama` — if inactive, `sudo systemctl start ollama`.
 
 ### `error: externally-managed-environment` from pip
-- Trying to install into system Python. Always work inside a venv: `source ~/<project>_env/bin/activate` first.
-
-### `migrate.sh` says "skip: <name> (directory already exists)"
-- You've already migrated. Fine, nothing to do.
-
-### Git config shows the wrong user
-- Overwrite it: `git config --global user.name "IHoggan"`. Previous commits keep their old author but new ones use the new name.
+Trying to install into system Python. Always work inside a venv.
 
 ### Committed under wrong author BEFORE first push
-- Fix the last commit only: `git commit --amend --author="IHoggan <iain.hoggan1170@gmail.com>" --no-edit`
+Fix the last commit: `git commit --amend --author="IHoggan <iain.hoggan1170@gmail.com>" --no-edit`
 
 ### Committed under wrong author AFTER first push
-- Leave it. Rewriting pushed history is more hassle than one wrong-authored commit is worth.
+Leave it. Rewriting pushed history isn't worth one wrong-authored commit.
 
 ---
 
 ## Cheat sheet — new project in five commands
 
-Once nix6 is set up (Part 1 done), starting a new project is:
+Once Part 1 is done (once, ever), starting a new project is:
 
 ```bash
 # 1. venv
@@ -437,10 +416,10 @@ python3 -m venv ~/<project>_env && source ~/<project>_env/bin/activate && pip in
 # 2. folder
 mkdir -p ~/code/<project> && cd ~/code/<project>
 
-# 3. add files (edit or copy) then commit
+# 3. add files (edit or copy), then commit
 git init && git add . && git commit -m "Initial commit"
 
-# 4. push
+# 4. push (creates GitHub repo, uploads all files)
 gh repo create IHoggan/<project> --public --source=. --remote=origin --push --description "..."
 
 # 5. wrapper (optional)
@@ -448,3 +427,10 @@ cp <wrapper> ~/.local/bin/ && chmod +x ~/.local/bin/<wrapper>
 ```
 
 Everything else is variations on this theme.
+
+---
+
+## Version history
+
+- **v2** (2026-09-22) — Real-world hardening after first run: added `apt install git gh`, collapsed SSH+gh into single `gh auth login`, added Part 2.0 preflight check, added "master → main" troubleshooting entry.
+- **v1** (2026-09-22) — Initial draft.
