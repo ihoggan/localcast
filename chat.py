@@ -19,6 +19,7 @@ Usage:
 import argparse
 import json
 import os
+import re
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -138,37 +139,101 @@ class Character:
 
 # ---------- Diary extraction ----------
 
-DIARY_PROMPT = """You are helping {name} remember things about the Maker.
+DIARY_PROMPT = """Below is a conversation between the MAKER (a real person) \
+and {NAME} (a fictional character played by an AI).
 
-Here is what {name} currently knows:
+Your job: note down durable facts that the MAKER stated about HIMSELF or his \
+own life, so {NAME} can remember them next time.
+
+Rules:
+- Only use lines that start with "MAKER:". Ignore everything {NAME} says. \
+{NAME} is fiction and invents things; none of it is a fact about the MAKER.
+- Only facts the MAKER actually said. Do not guess, generalise or add detail.
+- Skip small talk and passing things (weather, tea, mood, greetings).
+- Skip anything already in the existing notes.
+
+Existing notes:
 ---
 {diary}
 ---
 
-Here is a recent conversation between them:
+Conversation:
 ---
 {transcript}
 ---
 
-List any NEW durable facts about the Maker or the world that {name} should \
-remember for future conversations. Keep it terse — one bullet per fact. Skip \
-anything already in the existing notes. Skip small talk and transient stuff \
-(what they had for tea, weather, mood). If nothing new is worth noting, \
-respond with the single word: NONE
+For each fact, write ONE line in exactly this form:
+- <the fact, in a few words> | "<the MAKER's exact words it comes from>"
 
-Format each new fact as a markdown bullet starting with `- `. Write in \
-neutral third-person notes, not in {name}'s voice."""
+The words inside the quotes must be copied exactly from a MAKER line.
+If there are no such facts, reply with the single word: NONE"""
+
+# Words too common to show that a fact and its quote are about the same thing.
+_STOPWORDS = {
+    "maker", "maker's", "that", "this", "with", "have", "has", "from", "they",
+    "their", "them", "there", "about", "would", "will", "been", "were", "what",
+    "when", "which", "some", "also", "just", "really", "very", "into", "your",
+    "does", "doesn't", "likes", "like", "said", "says", "thinks", "being",
+    "himself", "owns",
+}
+
+
+def _normalise(text: str) -> str:
+    text = text.lower().replace("’", "'").replace("‘", "'")
+    text = text.replace("“", '"').replace("”", '"')
+    return re.sub(r"\s+", " ", text).strip()
+
+
+def _content_words(text: str) -> set:
+    words = re.findall(r"[a-z0-9']+", _normalise(text))
+    return {w for w in words if len(w) >= 4 and w not in _STOPWORDS}
+
+
+def check_diary_line(line: str, maker_lines) -> tuple:
+    """Decide whether one proposed diary line is backed by the Maker's words.
+
+    Returns (ok, fact, quote, reason). Two mechanical checks:
+      1. the quote must appear, word for word, in something the Maker said;
+      2. the fact must share at least one real word with that quote, so a
+         genuine quote can't be stapled to an unrelated invented fact.
+    """
+    body = line.strip().lstrip("-*").strip()
+    if "|" not in body:
+        return False, body, "", "no supporting quote"
+    fact, quote = body.split("|", 1)
+    fact = fact.strip()
+    quote = quote.strip().strip("\"'“”‘’").strip()
+    check = _normalise(quote)
+    if len(check) < 8:
+        return False, fact, quote, "quote too short to check"
+    said = " ".join(_normalise(m) for m in maker_lines)
+    if check not in said:
+        return False, fact, quote, "the Maker never said that"
+    if not (_content_words(fact) & _content_words(check)):
+        return False, fact, quote, "fact doesn't match its quote"
+    return True, fact, quote, ""
 
 
 def extract_diary_update(char: Character, recent_turns, model: str) -> str:
+    """Propose diary lines, keeping only those backed by the Maker's words.
+
+    Returns markdown bullets of the form:  - fact [said: "quote"]
+    Proposals that fail the checks are listed in LAST_REJECTED, with the
+    reason, so the end-of-session message can say what was thrown away.
+    """
+    global LAST_REJECTED
+    LAST_REJECTED = []
     if not recent_turns:
         return ""
+    who = char.name.upper()
+    maker_lines = [t["content"] for t in recent_turns if t["role"] == "user"]
     transcript = "\n".join(
-        f"{t['role'].upper()}: {t['content']}" for t in recent_turns
+        f"{'MAKER' if t['role'] == 'user' else who}: {t['content']}"
+        for t in recent_turns
     )
     current_diary = char.diary() or "(nothing yet)"
     prompt = DIARY_PROMPT.format(
-        name=char.name, diary=current_diary, transcript=transcript
+        NAME=who, diary=current_diary, transcript=transcript
     )
     reply = ""
     for chunk in chat_ollama(
@@ -181,9 +246,19 @@ def extract_diary_update(char: Character, recent_turns, model: str) -> str:
     reply = reply.strip()
     if not reply or reply.upper().startswith("NONE"):
         return ""
-    # Keep only bullet lines to filter out any preamble the model added
-    bullets = [l for l in reply.splitlines() if l.strip().startswith("-")]
-    return "\n".join(bullets)
+    kept = []
+    for line in reply.splitlines():
+        if not line.strip().startswith(("-", "*")):
+            continue  # preamble or chatter from the model
+        ok, fact, quote, reason = check_diary_line(line, maker_lines)
+        if ok:
+            kept.append(f'- {fact} [said: "{quote}"]')
+        else:
+            LAST_REJECTED.append(f"{line.strip()}   ({reason})")
+    return "\n".join(kept)
+
+
+LAST_REJECTED: list = []
 
 
 def review_pending(char: Character) -> None:
@@ -200,9 +275,12 @@ def review_pending(char: Character) -> None:
             border_style="cyan",
         )
     )
-    choice = Prompt.ask(
-        "What now?", choices=["keep", "edit", "discard"], default="keep"
+    console.print(
+        "[dim]Check each line against the quote in brackets. "
+        "Nothing is added unless you type keep.[/dim]"
     )
+    # Deliberately no default: pressing Enter must not add things to the diary.
+    choice = Prompt.ask("Type keep, edit or discard", choices=["keep", "edit", "discard"])
     if choice == "keep":
         with char.diary_path.open("a") as f:
             f.write("\n" + pending + "\n")
@@ -345,6 +423,13 @@ def run_session(char: Character) -> None:
                 )
             else:
                 console.print("[dim]Nothing new worth remembering.[/dim]")
+            if LAST_REJECTED:
+                console.print(
+                    f"[dim]Threw away {len(LAST_REJECTED)} proposal(s) "
+                    f"not backed by your own words:[/dim]"
+                )
+                for r in LAST_REJECTED:
+                    console.print(f"[dim]  x {r}[/dim]")
         except Exception as e:
             console.print(f"[red]Diary update failed: {e}[/red]")
     console.print(f"[dim]Bye, Maker.[/dim]")
