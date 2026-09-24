@@ -10,7 +10,8 @@ Three steps, run from the repo root with the venv active:
 
 generate  runs the CURRENT extract_diary_update() in chat.py over every
           scripted conversation in diary_fixtures.json, --runs times each,
-          and saves the raw proposals. Run it once before the fix
+          and saves the raw proposals. --fixtures picks another file of
+          conversations in tests/ (e.g. diary_holdout.json). Run it once before the fix
           (--label before) and once after (--label after).
 
 grade     shows you every ungraded proposal, from all labels, SHUFFLED and
@@ -39,7 +40,6 @@ sys.path.insert(0, str(ROOT))
 
 import chat  # noqa: E402  (the real localcast code, unchanged)
 
-FIXTURES = HERE / "diary_fixtures.json"
 RESULTS = HERE / "results" / "diary_eval.jsonl"
 
 # Anything in square brackets at the end of a line (e.g. a supporting quote
@@ -69,10 +69,22 @@ def save_rows(rows):
     RESULTS.write_text("".join(json.dumps(r) + "\n" for r in rows))
 
 
+def load_fixtures():
+    """Every conversation from every tests/diary_*.json file, keyed by id."""
+    out = {}
+    for f in sorted(HERE.glob("diary_*.json")):
+        for fx in json.loads(f.read_text()):
+            out[fx["id"]] = fx
+    return out
+
+
 def cmd_generate(args):
     if not chat.ollama_up():
         sys.exit("Ollama isn't answering on localhost:11434. Start it: sudo systemctl start ollama")
-    fixtures = json.loads(FIXTURES.read_text())
+    path = HERE / args.fixtures
+    if not path.exists():
+        sys.exit(f"No such fixtures file: {path}")
+    fixtures = json.loads(path.read_text())
     rows = load_rows()
     total = len(fixtures) * args.runs
     n = 0
@@ -102,7 +114,7 @@ def cmd_generate(args):
 
 
 def cmd_grade(args):
-    fixtures = {f["id"]: f for f in json.loads(FIXTURES.read_text())}
+    fixtures = load_fixtures()
     rows = load_rows()
     todo = [i for i, r in enumerate(rows) if r["grades"] is None]
     if not todo:
@@ -146,7 +158,7 @@ def cmd_grade(args):
 
 
 def cmd_report(args):
-    fixtures = {f["id"]: f for f in json.loads(FIXTURES.read_text())}
+    fixtures = load_fixtures()
     rows = [r for r in load_rows() if r["grades"] is not None]
     if not rows:
         print("Nothing graded yet.")
@@ -187,6 +199,8 @@ def main():
     g.add_argument("--label", required=True, help="e.g. before / after")
     g.add_argument("--runs", type=int, default=3)
     g.add_argument("--model", default="llama3.2:3b")
+    g.add_argument("--fixtures", default="diary_fixtures.json",
+                   help="which conversations file in tests/ (default: diary_fixtures.json)")
     sub.add_parser("grade")
     sub.add_parser("report")
     args = ap.parse_args()
