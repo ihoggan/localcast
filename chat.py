@@ -1,19 +1,20 @@
 #!/usr/bin/env python3
 """
-chat — persistent local-model characters, running on Ollama.
+localcast — persistent local-model characters, running on Ollama.
+Run it as `cast` (see README).
 
 Each character lives in ~/bubba/<name>/ with:
   system.txt     — the persona system prompt
-  diary.md       — durable facts the character remembers about you
+  diary.md       — facts the Maker has told this character, each with his own words
   history.jsonl  — every turn ever, one JSON object per line
   config.json    — model, temperature, num_ctx, history_turns
   pending.md     — proposed diary additions awaiting review (transient)
 
 Usage:
-  chat <name>              start chatting with a character
-  chat --list              list characters
-  chat --new <name>        scaffold a new character
-  chat --diary <name>      show a character's diary
+  cast <name>              start chatting with a character
+  cast --list              list characters
+  cast --new <name>        scaffold a new character
+  cast --diary <name>      show a character's diary
 """
 
 import argparse
@@ -250,6 +251,8 @@ def extract_diary_update(char: Character, recent_turns, model: str) -> str:
     for line in reply.splitlines():
         if not line.strip().startswith(("-", "*")):
             continue  # preamble or chatter from the model
+        if not line.strip().strip("-*_ "):
+            continue  # a markdown divider like --- is not a proposal
         ok, fact, quote, reason = check_diary_line(line, maker_lines)
         if ok:
             kept.append(f'- {fact} [said: "{quote}"]')
@@ -499,7 +502,7 @@ def show_diary(name: str) -> None:
 
 def main() -> None:
     ap = argparse.ArgumentParser(
-        description="chat — persistent local-model characters",
+        description="cast — persistent local-model characters",
     )
     ap.add_argument("name", nargs="?", help="character name to chat with")
     ap.add_argument("--list", "-l", action="store_true", help="list characters")

@@ -11,9 +11,17 @@ Raw outputs and grades: `diary_eval.jsonl`.
 |---|---|---|
 | Diary lines proposed | 35 | 22 |
 | Invented / not the Maker's (rubric grading) | 35 of 35 (100%) | 10 of 22 (45%) |
-| Encyclopedia padding lines | 14 | 0 |
+| General-knowledge filler lines (e.g. "The M56 is a major motorway in the UK") | 19 | 0 |
 | Correct NONE on the 2 conversations with no Maker facts (6 runs) | 0 of 6 | 4 of 6 |
 | Real Maker facts captured (rubric grading) | 0 of 18 | 9 of 18 |
+
+What the 35 "before" lines were: 19 general-knowledge filler, 7 details of
+Dave's invented Wrexham job, 3 versions of the invented "company van policy"
+pinned on the Maker, and 6 invented traits of the Maker drawn from small talk
+("The Maker is capable of performing electrical work").
+
+Correction: the filler count was first published here as 14. It was a
+miscount; recounted line by line from `diary_eval.jsonl`, it is 19.
 
 "Real Maker facts" excludes van-joke fact 2, which was wrong in the fixture file:
 it says the Maker wants rid of the van, but in the conversation he says he'll keep
