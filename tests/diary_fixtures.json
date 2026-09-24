@@ -1,0 +1,77 @@
+[
+  {
+    "id": "van-joke",
+    "note": "Reproduces the real failure: one joke from the Maker, lots of invention from the character.",
+    "maker_facts": [
+      "Drives a 1979 Ford Transit",
+      "Thinks the van is an embarrassment / wants rid of it"
+    ],
+    "turns": [
+      {"role": "user", "content": "Morning Dave. My van's a 1979 Transit, it's an embarrassment at this point."},
+      {"role": "assistant", "content": "A '79 Transit? Bloody hell. Our lot brought in a rule, every van gets replaced after five year, no arguments. Management reckon an old van makes the firm look cheap."},
+      {"role": "user", "content": "Ha, no management here. It's just me and the van."},
+      {"role": "assistant", "content": "Well you want to get shot of it before it gets shot of you. My apprentice Kyle had one, gearbox fell out on the M56."},
+      {"role": "user", "content": "It's got character. I'll keep it another year probably."},
+      {"role": "assistant", "content": "Character. That's what they say about my mother-in-law."}
+    ]
+  },
+  {
+    "id": "plain-facts",
+    "note": "The Maker states several durable facts plainly. The extractor should find them.",
+    "maker_facts": [
+      "Works as an IT / network technician",
+      "Lives on the Wirral",
+      "Supports Tranmere Rovers",
+      "Is rewiring his garage next month"
+    ],
+    "turns": [
+      {"role": "user", "content": "I work in IT, network technician mostly. Lot of cabling."},
+      {"role": "assistant", "content": "Network cables? That's not proper electrics, that. Low voltage. Kids' stuff."},
+      {"role": "user", "content": "Fair. I'm on the Wirral, so I'm not far from you if I need a proper sparky."},
+      {"role": "assistant", "content": "Wirral! I did a job in Heswall once. Posh kitchen, woman wanted twelve downlights in a room the size of a cupboard."},
+      {"role": "user", "content": "I'm rewiring my garage next month actually. And before you ask, yes I'll get it signed off. Anyway, Tranmere lost again."},
+      {"role": "assistant", "content": "Get it signed off or I'm not talking to you. And Tranmere always lose, that's why you support them, you like the suffering."}
+    ]
+  },
+  {
+    "id": "premise-trap",
+    "note": "The Maker asks about something the character never did. The character plays along. Nothing here is a fact about the Maker.",
+    "maker_facts": [],
+    "turns": [
+      {"role": "user", "content": "Dave, remind me, did you sort out that Wrexham job in the end?"},
+      {"role": "assistant", "content": "Wrexham, yeah. New consumer unit, sorted the ring main, RCDs and all. Right mess but they were happy."},
+      {"role": "user", "content": "How long did it take you?"},
+      {"role": "assistant", "content": "Three days. Would've been two but the customer's son kept wanting to help. Twelve year old. Handed me the wrong screwdriver every time."},
+      {"role": "user", "content": "Ha. Classic."},
+      {"role": "assistant", "content": "Classic is right. Paid in cash though, so no complaints."}
+    ]
+  },
+  {
+    "id": "character-monologue",
+    "note": "The character talks about his own life at length; the Maker says one durable thing.",
+    "maker_facts": [
+      "Has a dog called Bess"
+    ],
+    "turns": [
+      {"role": "user", "content": "How's things Dave?"},
+      {"role": "assistant", "content": "Don't ask. Tyson, me dog, ate half a bag of cable ties last night. Wife's gone to her sister's in Rhyl for the week. And the wholesaler's put copper up again."},
+      {"role": "user", "content": "Ouch. My dog Bess once ate a whole box of fuses."},
+      {"role": "assistant", "content": "Fuses! Was she alright? Tyson's fine, he's built like a tank. Staffie. Scared of the hoover though."},
+      {"role": "user", "content": "She was fine, just expensive."},
+      {"role": "assistant", "content": "Everything's expensive now. I charged forty quid an hour in 2015, you know. Forty quid."}
+    ]
+  },
+  {
+    "id": "small-talk",
+    "note": "Nothing durable at all. Correct answer is NONE.",
+    "maker_facts": [],
+    "turns": [
+      {"role": "user", "content": "Alright Dave, morning. Cuppa?"},
+      {"role": "assistant", "content": "Go on then. Milk, two sugars. Don't drown it."},
+      {"role": "user", "content": "Raining again here."},
+      {"role": "assistant", "content": "Always raining. Did a job in the rain yesterday, soaked through by ten."},
+      {"role": "user", "content": "Right, I'd better get on. Speak later."},
+      {"role": "assistant", "content": "Aye, go on. Don't electrocute yourself."}
+    ]
+  }
+]
