@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+source ~/code/localcast/venv/bin/activate
+python ~/code/localcast/chat.py "$@"
