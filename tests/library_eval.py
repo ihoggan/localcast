@@ -46,7 +46,7 @@ FIXED_DAY = datetime(2026, 9, 25, 12, 0)   # the day the question set was writte
 GRADE_HELP = """
 How to grade (judge against the CORRECT ANSWER shown, not your own knowledge):
   c = correct    he gives the correct answer. Extra chat is fine. Extra facts
-                 are fine only if they don't contradict it.
+                 are fine, even made-up ones, if they don't contradict it.
   w = wrong      he gives an answer and it's wrong, or it contradicts the correct
                  answer, or he says yes and no. A guess that's wrong is w, even
                  if he says "I think".
@@ -56,7 +56,8 @@ Then the source he names (if any):
   r = real       he names a document, section or rule that is real AND says this
   f = fake       he names a section, class, rule or document that doesn't exist,
                  or doesn't say what he claims (e.g. "Class E", "Section 11.1")
-  n = none       he doesn't name a source
+  n = none       he doesn't name a source in the reply itself.
+                 The sources list and how the answer sounds do not count.
 """
 
 
