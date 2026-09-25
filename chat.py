@@ -121,7 +121,7 @@ class Character:
         picked = pick_passages(
             results,
             max_chars=self.config.get("library_max_chars", 2000),
-            relative=self.config.get("library_relative", 0.5),
+            relative=self.config.get("library_relative", 0.4),
         )
         return [p for _, p in picked]
 
@@ -150,7 +150,10 @@ class Character:
                 + "\n"
             )
 
-    def build_system(self) -> str:
+    def build_system(self, today=None) -> str:
+        """today: a datetime for the date line (tests and the eval rig pass a
+        fixed one); default is now. The date changes once a day, so the system
+        prompt still stays the same for a whole session."""
         system = self.system
         diary = self.diary()
         if diary:
@@ -160,15 +163,19 @@ class Character:
                 f"(from previous conversations):\n{diary}"
             )
         if self.library.passages:
-            system += "\n\n---\n" + LIBRARY_RULES
+            now = today or datetime.now()
+            system += (
+                "\n\n---\n" + LIBRARY_RULES
+                + f"\n\nToday is {now:%A} {now.day} {now:%B %Y}."
+            )
         return system
 
-    def build_messages(self, user_input: str, n_history: int = 20, passages=()):
+    def build_messages(self, user_input: str, n_history: int = 20, passages=(), today=None):
         """The messages for one reply. Library passages go into the LAST
         message only: they are never saved to history, and the system prompt
         and history stay the same from turn to turn, so Ollama can reuse its
         work on them instead of re-reading everything each reply."""
-        msgs = [{"role": "system", "content": self.build_system()}]
+        msgs = [{"role": "system", "content": self.build_system(today)}]
         for turn in self.recent_history(n_history):
             msgs.append({"role": turn["role"], "content": turn["content"]})
         msgs.append({"role": "user", "content": with_passages(user_input, passages)})
@@ -187,6 +194,13 @@ cover the question, say you'd have to check.
 - Stay in character."""
 
 
+# Placed right before the Maker's words: small models follow what is nearest.
+PASSAGE_REMINDER = (
+    "Answer only from these passages. If they don't say, tell the Maker you'd "
+    "have to check. Don't make up rules, section numbers or dates."
+)
+
+
 def with_passages(user_input: str, passages) -> str:
     """The Maker's message, with any library passages placed before it."""
     if not passages:
@@ -195,6 +209,7 @@ def with_passages(user_input: str, passages) -> str:
     return (
         f"REFERENCE PASSAGES (for this reply only; the Maker can't see these):\n\n"
         f"{blocks}\n\nEND OF PASSAGES.\n\n"
+        f"{PASSAGE_REMINDER}\n\n"
         f"THE MAKER SAYS: {user_input}"
     )
 

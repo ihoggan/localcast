@@ -209,7 +209,7 @@ class Library:
         return scored[:k]
 
 
-def pick_passages(results, max_chars: int = 2000, relative: float = 0.5):
+def pick_passages(results, max_chars: int = 2000, relative: float = 0.4):
     """Keep results in rank order, leaving out:
       - any passage scoring under `relative` x the top score (weak matches
         that would only pad out the space), and

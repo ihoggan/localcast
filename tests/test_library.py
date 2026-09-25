@@ -160,6 +160,9 @@ def check_weak_matches_dropped():
     kept = pick_passages([(10.0, a), (6.0, b), (4.9, c)], relative=0.5)
     assert [p.heading for _, p in kept] == ["A", "B"], [p.heading for _, p in kept]
     assert pick_passages([]) == []
+    # The default cutoff is 0.4: 4.1 of 10 stays, 3.9 goes.
+    kept = pick_passages([(10.0, a), (4.1, b), (3.9, c)])
+    assert [p.heading for _, p in kept] == ["A", "B"], [p.heading for _, p in kept]
 
 
 def check_words():

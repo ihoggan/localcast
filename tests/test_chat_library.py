@@ -9,6 +9,7 @@ Run from the repo root with the venv active:
 
 import sys
 import tempfile
+from datetime import datetime
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
@@ -88,6 +89,41 @@ def check_config_respected(base):
     assert c.find_passages("when does brightwire deliver?") == []
 
 
+def check_reminder_next_to_question(base):
+    c = make_character(base, "remind", True)
+    q = "when does brightwire deliver?"
+    last = c.build_messages(q, 20, c.find_passages(q))[-1]["content"]
+    tail = f"END OF PASSAGES.\n\n{chat.PASSAGE_REMINDER}\n\nTHE MAKER SAYS: {q}"
+    assert last.endswith(tail), last[-300:]
+    # No passages, no reminder: banter stays plain.
+    assert chat.PASSAGE_REMINDER not in c.build_messages("morning", 20, [])[-1]["content"]
+
+
+def check_date_line(base):
+    fixed = datetime(2027, 3, 2, 9, 0)   # not today, so the real clock can't pass by luck
+    c = make_character(base, "dated", True)
+    assert "Today is Tuesday 2 March 2027." in c.build_system(fixed), c.build_system(fixed)[-80:]
+    msgs = c.build_messages("hello", 20, [], today=fixed)
+    assert "Today is Tuesday 2 March 2027." in msgs[0]["content"]
+    p = make_character(base, "undated", False)
+    assert "Today is" not in p.build_system(fixed), "no library, no change: no date line"
+
+
+def check_default_cutoff_is_0_4(base):
+    c = make_character(base, "cutoff", True)
+    seen = {}
+    real = chat.pick_passages
+    def spy(results, **kw):
+        seen.update(kw)
+        return real(results, **kw)
+    chat.pick_passages = spy
+    try:
+        c.find_passages("when does brightwire deliver?")
+    finally:
+        chat.pick_passages = real
+    assert seen.get("relative") == 0.4, seen
+
+
 CHECKS = [
     check_passages_only_in_last_message,
     check_system_prompt_same_every_turn,
@@ -95,6 +131,9 @@ CHECKS = [
     check_banter_gets_no_passages,
     check_subfolders_ignored,
     check_config_respected,
+    check_reminder_next_to_question,
+    check_date_line,
+    check_default_cutoff_is_0_4,
 ]
 
 
