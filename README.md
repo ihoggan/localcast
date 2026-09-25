@@ -44,7 +44,7 @@ Updating diary…
 Nothing new worth remembering.
 ```
 
-Dave invented a job in Prenton, his own van, a hotel and a dog. None of it went into his diary, which is supposed to hold facts about *you*. He also missed a real one: the Transit. See [Honest limits](#honest-limits).
+Dave invented a job in Prenton, his own van and a dog. None of it went into his diary, which is supposed to hold facts about *you*. He also missed a real one: the Transit. See [Honest limits](#honest-limits).
 
 ## How it works
 
