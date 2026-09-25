@@ -7,8 +7,9 @@ Each character lives in ~/bubba/<name>/ with:
   system.txt     — the persona system prompt
   diary.md       — facts the Maker has told this character, each with his own words
   history.jsonl  — every turn ever, one JSON object per line
-  config.json    — model, temperature, num_ctx, history_turns
+  config.json    — model, temperature, num_ctx, history_turns, library settings
   pending.md     — proposed diary additions awaiting review (transient)
+  library/       — optional reference files (.md, .txt); see library.py
 
 Usage:
   cast <name>              start chatting with a character
@@ -28,8 +29,11 @@ from pathlib import Path
 import requests
 from rich.console import Console
 from rich.markdown import Markdown
+from rich.markup import escape
 from rich.panel import Panel
 from rich.prompt import Confirm, Prompt
+
+from library import Library, load_library, pick_passages
 
 BASE = Path.home() / "bubba"
 OLLAMA_URL = "http://localhost:11434"
@@ -47,8 +51,13 @@ def ollama_up() -> bool:
         return False
 
 
+LAST_STATS: dict = {}
+
+
 def chat_ollama(model, messages, temperature=0.85, num_ctx=4096, stream=True):
-    """Call Ollama /api/chat. Yields text chunks."""
+    """Call Ollama /api/chat. Yields text chunks. Ollama's timing figures for
+    the finished reply are left in LAST_STATS."""
+    LAST_STATS.clear()
     r = requests.post(
         f"{OLLAMA_URL}/api/chat",
         json={
@@ -66,10 +75,13 @@ def chat_ollama(model, messages, temperature=0.85, num_ctx=4096, stream=True):
                 continue
             chunk = json.loads(line)
             if chunk.get("done"):
+                LAST_STATS.update({k: v for k, v in chunk.items() if k != "message"})
                 return
             yield chunk.get("message", {}).get("content", "")
     else:
-        yield r.json()["message"]["content"]
+        data = r.json()
+        LAST_STATS.update({k: v for k, v in data.items() if k != "message"})
+        yield data["message"]["content"]
 
 
 # ---------- Character ----------
@@ -94,6 +106,24 @@ class Character:
             if self.config_path.exists()
             else {}
         )
+        self.library_dir = self.dir / "library"
+        self.library = Library(load_library(self.library_dir))
+
+    def find_passages(self, user_input: str):
+        """The library passages to show the character for this one message:
+        best matches first, weak matches and anything over the size cap left
+        out. Empty if there is no library or nothing matches."""
+        if not self.library.passages:
+            return []
+        results = self.library.search(
+            user_input, k=self.config.get("library_passages", 3)
+        )
+        picked = pick_passages(
+            results,
+            max_chars=self.config.get("library_max_chars", 2000),
+            relative=self.config.get("library_relative", 0.5),
+        )
+        return [p for _, p in picked]
 
     def diary(self) -> str:
         return self.diary_path.read_text().strip() if self.diary_path.exists() else ""
@@ -121,21 +151,52 @@ class Character:
             )
 
     def build_system(self) -> str:
+        system = self.system
         diary = self.diary()
         if diary:
-            return (
-                f"{self.system}\n\n---\n"
+            system += (
+                f"\n\n---\n"
                 f"WHAT YOU KNOW ABOUT THE MAKER AND THE WORLD "
                 f"(from previous conversations):\n{diary}"
             )
-        return self.system
+        if self.library.passages:
+            system += "\n\n---\n" + LIBRARY_RULES
+        return system
 
-    def build_messages(self, user_input: str, n_history: int = 20):
+    def build_messages(self, user_input: str, n_history: int = 20, passages=()):
+        """The messages for one reply. Library passages go into the LAST
+        message only: they are never saved to history, and the system prompt
+        and history stay the same from turn to turn, so Ollama can reuse its
+        work on them instead of re-reading everything each reply."""
         msgs = [{"role": "system", "content": self.build_system()}]
         for turn in self.recent_history(n_history):
             msgs.append({"role": turn["role"], "content": turn["content"]})
-        msgs.append({"role": "user", "content": user_input})
+        msgs.append({"role": "user", "content": with_passages(user_input, passages)})
         return msgs
+
+
+LIBRARY_RULES = """YOUR REFERENCE SHELF: some of the Maker's messages come with \
+REFERENCE PASSAGES from your documents and notes, placed before what he says. \
+The Maker can't see them. They are not something he said.
+- If his question is about something in the passages, answer from them.
+- Say where it's from, in your own words, e.g. "it's in the Part P guide, \
+paragraph 2.8" or "it's on the jobs sheet".
+- Don't add facts, numbers or rules that aren't in the passages. If they don't \
+cover the question, say you'd have to check.
+- If the passages have nothing to do with what he said, ignore them.
+- Stay in character."""
+
+
+def with_passages(user_input: str, passages) -> str:
+    """The Maker's message, with any library passages placed before it."""
+    if not passages:
+        return user_input
+    blocks = "\n\n".join(f"[{p.label()}]\n{p.text}" for p in passages)
+    return (
+        f"REFERENCE PASSAGES (for this reply only; the Maker can't see these):\n\n"
+        f"{blocks}\n\nEND OF PASSAGES.\n\n"
+        f"THE MAKER SAYS: {user_input}"
+    )
 
 
 # ---------- Diary extraction ----------
@@ -310,6 +371,7 @@ HELP_TEXT = """[bold]Commands:[/bold]
   /diary          show what this character remembers
   /remember X     add a manual note to the diary
   /history        show the last 10 turns
+  /sources        show the library passages given for the last reply
   /clear          wipe conversation history (KEEPS diary)
   /help           this"""
 
@@ -330,16 +392,21 @@ def run_session(char: Character) -> None:
 
     review_pending(char)
 
+    n_passages = len(char.library.passages)
+    library_note = (
+        f" · library {n_passages} passages" if n_passages else ""
+    )
     console.print(
         Panel(
             f"[bold]{char.name}[/bold] · model [cyan]{model}[/cyan] · "
-            f"temp {temperature} · ctx {num_ctx}\n"
+            f"temp {temperature} · ctx {num_ctx}{library_note}\n"
             f"Type /help for commands. Ctrl+D or /exit to leave.",
             border_style="dim",
         )
     )
 
     turns_this_session = []
+    last_passages = []
 
     while True:
         try:
@@ -383,6 +450,12 @@ def run_session(char: Character) -> None:
                         f"{t['content'][:200]}"
                     )
                 continue
+            if cmd == "sources":
+                if not last_passages:
+                    console.print("[dim]No library passages were given for the last reply.[/dim]")
+                for p in last_passages:
+                    console.print(Panel(escape(p.text), title=escape(p.label()), border_style="dim"))
+                continue
             if cmd == "clear":
                 if Confirm.ask(
                     "Wipe conversation history (diary is safe)?", default=False
@@ -394,7 +467,17 @@ def run_session(char: Character) -> None:
             console.print(f"[red]Unknown command: /{cmd}[/red]")
             continue
 
-        messages = char.build_messages(user_input, n_history)
+        passages = char.find_passages(user_input)
+        messages = char.build_messages(user_input, n_history, passages)
+        # Rough size check: about 4 characters per token for English.
+        est_tokens = sum(len(m["content"]) for m in messages) // 4
+        if est_tokens > 0.85 * num_ctx:
+            console.print(
+                f"[yellow]Warning: this message is about {est_tokens} tokens "
+                f"of a {num_ctx} context. Older history may be cut off; "
+                f"/clear or a lower history_turns in config.json will help.[/yellow]"
+            )
+        # Only the Maker's own words are saved, never the passages.
         char.append_turn("user", user_input)
         turns_this_session.append({"role": "user", "content": user_input})
 
@@ -410,6 +493,10 @@ def run_session(char: Character) -> None:
             console.print(f"\n[red]Ollama error: {e}[/red]")
             continue
         console.print()
+        last_passages = passages
+        if char.library.passages:
+            used = escape(" · ".join(p.label() for p in passages)) or "none"
+            console.print(f"[dim]sources: {used}[/dim]")
 
         char.append_turn("assistant", reply)
         turns_this_session.append({"role": "assistant", "content": reply})
