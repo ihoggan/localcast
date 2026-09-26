@@ -8,7 +8,7 @@ It's one Python file with two dependencies. No cloud, no API key, no subscriptio
 
 ## Tested on
 
-Built and used on a 2015 office PC that was headed for the skip:
+Built and used on a 2015 desktop PC that was headed for the skip:
 
 | | |
 |---|---|
