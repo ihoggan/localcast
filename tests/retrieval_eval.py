@@ -11,6 +11,13 @@ Run from the repo root with the venv active:
   python tests/retrieval_eval.py                  # summary + every miss
   python tests/retrieval_eval.py --all            # every question, not just misses
   python tests/retrieval_eval.py --library PATH   # a different library folder
+  python tests/retrieval_eval.py --search embed   # by meaning (Ollama embeddings)
+  python tests/retrieval_eval.py --search embed --min-score 0.6
+
+Keyword search uses the same cap and 0.4 relative cutoff as a real chat.
+Embedding search uses no relative cutoff by default (--relative 0) and an
+absolute --min-score (default 0: keep the top 3), and prints every
+question's top score so a cutoff can be chosen in the open.
 
 For each answerable question it reports:
   found   an expected section is in the top 3 search results
@@ -34,7 +41,7 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
 sys.path.insert(0, str(ROOT))
 
-from library import Library, load_library, pick_passages  # noqa: E402
+from library import EmbeddingLibrary, Library, load_library, pick_passages  # noqa: E402
 
 QUESTIONS = HERE / "retrieval_questions.txt"
 DEFAULT_LIBRARY = Path("~/bubba/dave/library").expanduser()
@@ -109,7 +116,8 @@ def chat_settings():
 def run(questions, lib, settings):
     rows = []
     for q in questions:
-        results = lib.search(q["q"], k=settings["library_passages"])
+        results = lib.search(q["q"], k=settings["library_passages"],
+                             min_score=settings["min_score"])
         picked = pick_passages(
             results,
             max_chars=settings["library_max_chars"],
@@ -142,11 +150,31 @@ def show(row):
         print(f"       {score:6.2f} {tag} {p.label()}")
 
 
+def show_scores(rows):
+    """Every question's top score, highest first, so a --min-score can be
+    chosen by eye: answerable questions want to sit above it, `none`
+    questions below it."""
+    print("\nTop score per question (highest first)")
+    print("  score  kind    top result right?  question")
+    for r in sorted(rows, key=lambda r: -(r["results"][0][0] if r["results"] else 0)):
+        top = r["results"][0][0] if r["results"] else 0.0
+        if r["q"]["none"]:
+            kind, right = "none", "-"
+        else:
+            kind, right = "answer", "yes" if r["first"] else "no"
+        print(f"  {top:5.3f}  {kind:6s}  {right:17s}  {r['q']['q'][:60]}")
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--all", action="store_true", help="show every question, not just misses")
     ap.add_argument("--library", default=str(DEFAULT_LIBRARY), help="library folder")
     ap.add_argument("--questions", default=str(QUESTIONS), help="question file")
+    ap.add_argument("--search", choices=["keyword", "embed"], default="keyword")
+    ap.add_argument("--model", default=None, help="embedding model (default nomic-embed-text)")
+    ap.add_argument("--min-score", type=float, default=0.0, help="drop results scoring below this")
+    ap.add_argument("--relative", type=float, default=None,
+                    help="relative cutoff (default 0.4 for keyword, 0 for embed)")
     args = ap.parse_args()
 
     passages = load_library(args.library)
@@ -155,7 +183,20 @@ def main():
     questions = load_questions(Path(args.questions))
     check_expects(questions, passages)
     settings = chat_settings()
-    rows = run(questions, Library(passages), settings)
+    settings["search"] = args.search
+    settings["min_score"] = args.min_score
+    if args.search == "embed":
+        settings["library_relative"] = 0.0
+        kwargs = {"model": args.model} if args.model else {}
+        cache = Path(args.library).expanduser().parent / "embeddings.json"
+        lib = EmbeddingLibrary(passages, cache_path=cache, **kwargs)
+        settings["model"] = lib.model
+        print(f"Embedded {lib.embed_calls} passages (the rest came from {cache})")
+    else:
+        lib = Library(passages)
+    if args.relative is not None:
+        settings["library_relative"] = args.relative
+    rows = run(questions, lib, settings)
 
     print(f"{len(questions)} questions, {len(passages)} passages, settings {settings}")
     for row in rows:
@@ -177,6 +218,9 @@ def main():
             print(f"  found but cut by the cutoff or cap    {sum(r['cut'] for r in ans):2d} of {n}")
         if non:
             print(f"  clean (nothing given)                 {sum(r['clean'] for r in non):2d} of {len(non)}")
+
+    if args.search == "embed":
+        show_scores(rows)
 
     ok = sum(r["ok"] for r in rows)
     print(f"\nOverall: {ok} of {len(rows)} right")

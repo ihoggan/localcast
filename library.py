@@ -10,6 +10,8 @@ originals/ are ignored.
                     so the source can be named.
   Library           ranks passages against a question with BM25 (the standard
                     keyword-ranking method), in plain Python.
+  EmbeddingLibrary  the same job by meaning instead of shared words, using an
+                    Ollama embedding model (default nomic-embed-text).
   pick_passages()   keeps the best few, under a hard character cap, so the
                     context window can't overflow.
 
@@ -17,6 +19,8 @@ Try it from the repo root:
     python library.py ~/bubba/dave/library "new cooker circuit"
 """
 
+import hashlib
+import json
 import math
 import re
 import sys
@@ -203,6 +207,105 @@ class Library:
             score = sum(
                 self.idf[w] * c * (self.K1 + 1) / (c + norm) for w, c in tf.items()
             )
+            if score >= min_score:
+                scored.append((score, p))
+        scored.sort(key=lambda sp: -sp[0])
+        return scored[:k]
+
+
+# ---------- Searching by meaning (embeddings) ----------
+
+OLLAMA_URL = "http://localhost:11434"
+EMBED_MODEL = "nomic-embed-text"
+
+# nomic-embed-text is trained with these task prefixes; it matches questions
+# to passages better when both are labelled.
+QUERY_PREFIX = "search_query: "
+DOC_PREFIX = "search_document: "
+
+
+def ollama_embed(texts, model: str = EMBED_MODEL, url: str = OLLAMA_URL, batch: int = 16):
+    """One vector per text, from Ollama's /api/embed."""
+    import requests  # only needed when embeddings are actually used
+
+    out = []
+    for i in range(0, len(texts), batch):
+        r = requests.post(
+            f"{url}/api/embed",
+            json={"model": model, "input": texts[i:i + batch]},
+            timeout=300,
+        )
+        r.raise_for_status()
+        out += r.json()["embeddings"]
+    return out
+
+
+def _unit(v):
+    n = math.sqrt(sum(x * x for x in v))
+    return [x / n for x in v] if n else list(v)
+
+
+def _key(model: str, text: str) -> str:
+    return hashlib.sha256(f"{model}\n{text}".encode()).hexdigest()
+
+
+class EmbeddingLibrary:
+    """Search by meaning: each passage and each question becomes a vector,
+    and a passage scores by cosine similarity to the question (1.0 = same
+    meaning, around 0.3-0.5 = unrelated for this model).
+
+    Passage vectors are kept in a JSON cache file, keyed by model and text,
+    so only new or edited passages are sent to Ollama. `embed` is the
+    function that turns texts into vectors (tests pass a fake one).
+    """
+
+    def __init__(self, passages, cache_path=None, model: str = EMBED_MODEL, embed=None):
+        self.passages = list(passages)
+        self.model = model
+        self.embed = embed or (lambda texts: ollama_embed(texts, model=model))
+        self.cache_path = Path(cache_path).expanduser() if cache_path else None
+        self.embed_calls = 0  # passages sent for embedding (0 = all from cache)
+
+        cache = self._load_cache()
+        docs = [DOC_PREFIX + p.heading + "\n" + p.text for p in self.passages]
+        keys = [_key(model, d) for d in docs]
+        missing = [i for i, k in enumerate(keys) if k not in cache]
+        if missing:
+            vectors = self.embed([docs[i] for i in missing])
+            self.embed_calls = len(missing)
+            for i, v in zip(missing, vectors):
+                cache[keys[i]] = v
+        self.vectors = [_unit(cache[k]) for k in keys]
+        # Keep only this library's entries, so deleted passages don't pile up.
+        self._save_cache({k: cache[k] for k in keys}, changed=bool(missing))
+
+    def _load_cache(self):
+        if not self.cache_path or not self.cache_path.exists():
+            return {}
+        try:
+            return json.loads(self.cache_path.read_text())
+        except (ValueError, OSError):
+            return {}  # a broken cache is rebuilt, never trusted
+
+    def _save_cache(self, cache, changed):
+        if not self.cache_path:
+            return
+        if not changed and self.cache_path.exists():
+            return
+        self.cache_path.parent.mkdir(parents=True, exist_ok=True)
+        tmp = self.cache_path.with_suffix(".tmp")
+        tmp.write_text(json.dumps(cache))
+        tmp.replace(self.cache_path)
+
+    def search(self, question: str, k: int = 3, min_score: float = 0.0):
+        """Best k passages as (score, passage), highest first, dropping any
+        that score below min_score."""
+        if not question.strip() or not self.passages:
+            return []
+        q = _unit(self.embed([QUERY_PREFIX + question])[0])
+        scored = []
+        for p, v in zip(self.passages, self.vectors):
+            score = sum(a * b for a, b in zip(q, v))
             if score >= min_score:
                 scored.append((score, p))
         scored.sort(key=lambda sp: -sp[0])

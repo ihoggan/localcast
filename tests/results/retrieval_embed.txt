@@ -1,0 +1,213 @@
+Embedded 68 passages (the rest came from /home/iain/bubba/dave/embeddings.json)
+27 questions, 68 passages, settings {'library_passages': 3, 'library_max_chars': 2000, 'library_relative': 0.0, 'search': 'embed', 'min_score': 0.0, 'model': 'nomic-embed-text'}
+
+[ok  ] When did the 2013 edition of Approved Document P take effect for use in England?
+       expect: AD P Main changes in the 2013 edition
+         0.75 given approved-document-p.md: AD P Main changes in the 2013 edition (part 2 of 2)
+         0.74 given approved-document-p.md: AD P Main changes in the 2013 edition (part 1 of 2)
+         0.71 cut   approved-document-p.md: AD P What is an approved document? (part 1 of 2)
+
+[ok  ] What edition of BS 7671 does the 2013 approved document refer to for electrical installations?
+       expect: AD P Main changes in the 2013 edition | AD P 1.1 Design and installation: General
+         0.75 given approved-document-p.md: AD P Main changes in the 2013 edition (part 2 of 2)
+         0.75 given approved-document-p.md: AD P Appendix B: Standards referred to
+         0.73 given approved-document-p.md: AD P Main changes in the 2013 edition (part 1 of 2)
+
+[ok  ] What are the two primary categories of changes introduced in the 2013 edition of Approved Document P?
+       expect: AD P Main changes in the 2013 edition
+         0.73 given approved-document-p.md: AD P Main changes in the 2013 edition (part 2 of 2)
+         0.71 given approved-document-p.md: AD P Main changes in the 2013 edition (part 1 of 2)
+         0.69 cut   approved-document-p.md: AD P How to use this approved document (part 1 of 2)
+
+[ok  ] What is the primary objective of Requirement P1 under Part P of the Building Regulations?
+       expect: AD P Requirement P1: Design and installation
+         0.79 given approved-document-p.md: AD P Requirement P1: Design and installation (part 1 of 2)
+         0.78 given approved-document-p.md: AD P 1.3 Functionality requirements
+         0.77 given approved-document-p.md: AD P 2.1 Application of Part P: General
+
+[ok  ] What voltage ranges must electrical installations operate at for Part P requirements to apply?
+       expect: AD P Requirement P1: Design and installation
+         0.82 given approved-document-p.md: AD P Requirement P1: Performance
+         0.81 given approved-document-p.md: AD P Requirement P1: Design and installation (part 1 of 2)
+         0.80 given approved-document-p.md: AD P 2.2 Scope: where Part P applies
+
+[ok  ] According to Approved Document M, what is the recommended height range from the finished floor level for switches and socket-outlets in new dwellings?
+       expect: AD P 1.4 New dwellings
+         0.90 given approved-document-p.md: AD P 1.4 New dwellings
+         0.69 given approved-document-p.md: AD P Requirement P1: Design and installation (part 1 of 2)
+         0.69 given approved-document-p.md: AD P 0.2 Interaction with other parts of the Building Regulations (part 2 of 2)
+
+[ok  ] What mounting height is suggested for consumer units in new dwellings so they remain out of reach of young children while remaining accessible?
+       expect: AD P 1.4 New dwellings
+         0.81 given approved-document-p.md: AD P 1.4 New dwellings
+         0.64 given approved-document-p.md: AD P 1.5 New dwellings formed by a change of use
+         0.64 cut   approved-document-p.md: AD P Requirement P1: Design and installation (part 1 of 2)
+
+[ok  ] When additions or alterations are made to an existing electrical installation, is there a general requirement to upgrade the entire existing installation?
+       expect: AD P 1.6 Additions and alterations to existing electrical installations
+         0.88 given approved-document-p.md: AD P 1.6 Additions and alterations to existing electrical installations
+         0.83 given approved-document-p.md: AD P 1.7 Additions and alterations: checking the existing installation
+         0.79 given approved-document-p.md: AD P 1.5 New dwellings formed by a change of use
+
+[ok  ] Under regulation 12(6A), what three specific types of electrical installation work are classified as notifiable?
+       expect: AD P 2.5 Notifiable work
+         0.87 given approved-document-p.md: AD P 2.7 Non-notifiable work
+         0.82 given approved-document-p.md: AD P 2.5 Notifiable work (part 1 of 2)
+         0.81 given approved-document-p.md: AD P 2.8 Non-notifiable work: fixed electrical equipment
+
+[ok  ] How is a special location defined horizontally in a room containing a bath tub or shower tray?
+       expect: AD P 2.5 Notifiable work
+         0.78 given approved-document-p.md: AD P 2.6 Notifiable work in rooms containing a bath or shower
+         0.77 given approved-document-p.md: AD P 2.5 Notifiable work (part 2 of 2)
+         0.67 given approved-document-p.md: AD P 2.5 Notifiable work (part 1 of 2)
+
+[ok  ] Are domestic outbuildings like conservatories, porches, greenhouses, garages, and sheds exempt from Part P if they share electricity with a dwelling?
+       expect: AD P 2.3 Scope: where Part P does not apply
+         0.78 given approved-document-p.md: AD P 2.3 Scope: where Part P does not apply (part 1 of 2)
+         0.75 given approved-document-p.md: AD P 2.2 Scope: where Part P applies
+         0.71 given approved-document-p.md: AD P 0.2 Interaction with other parts of the Building Regulations (part 2 of 2)
+
+[ok  ] What are the three alternative procedures that can be used to certify notifiable electrical installation work?
+       expect: AD P 3.1 Certification, inspection and testing: General
+         0.84 given approved-document-p.md: AD P 3.1 Certification, inspection and testing: General (part 1 of 2)
+         0.82 given approved-document-p.md: AD P 3.13 Inspection and testing of non-notifiable work
+         0.80 given approved-document-p.md: AD P 2.7 Non-notifiable work
+
+[ok  ] Within how many days must an installer or their registration body provide a copy of the Building Regulations compliance certificate to the occupier under the self-certification procedure?
+       expect: AD P 3.3 Self-certification by a registered competent person
+         0.86 given approved-document-p.md: AD P 3.3 Self-certification by a registered competent person
+         0.77 given approved-document-p.md: AD P 3.5 Certification by a registered third party (part 2 of 2)
+         0.77 given approved-document-p.md: AD P 3.5 Certification by a registered third party (part 1 of 2)
+
+[ok  ] How is extra-low voltage defined in Appendix A?
+       expect: AD P Appendix A: Key terms
+         0.78 given approved-document-p.md: AD P Appendix A: Key terms (part 1 of 2)
+         0.69 given approved-document-p.md: AD P Appendix B: Standards referred to
+         0.69 given approved-document-p.md: AD P Appendix A: Key terms (part 2 of 2)
+
+[ok  ] Which standard is referenced in Appendix B as the IET Wiring Regulations 17th Edition?
+       expect: AD P Appendix B: Standards referred to
+         0.84 given approved-document-p.md: AD P Appendix B: Standards referred to
+         0.67 given approved-document-p.md: AD P How to use this approved document (part 1 of 2)
+         0.67 given approved-document-p.md: AD P Appendix A: Key terms (part 1 of 2)
+
+[MISS] Hey Dave, if I'm adding a brand-new socket in the middle of my living room wall, do I actually need to notify anyone about it?
+       expect: AD P 2.7 Non-notifiable work
+         0.66 given approved-document-p.md: AD P 1.4 New dwellings
+         0.66 given approved-document-p.md: AD P 2.6 Notifiable work in rooms containing a bath or shower
+         0.62 cut   approved-document-p.md: AD P 2.5 Notifiable work (part 1 of 2)
+
+[MISS] Dave, what happens if I decide to replace my old consumer unit? Is that something I can just do quietly without telling building control or getting certification?
+       expect: AD P 2.5 Notifiable work
+         0.68 given approved-document-p.md: AD P 3.8 Certification by a building control body
+         0.68 given approved-document-p.md: AD P 1.5 New dwellings formed by a change of use
+         0.68 cut   approved-document-p.md: AD P 3.10 Certification by a building control body: certificates and charges (part 1 of 2)
+
+[ok  ] Quick question Dave, if someone isn't a registered competent person, can they still use a registered third party to certify notifiable work instead of going through building control?
+       expect: AD P Main changes in the 2013 edition | AD P 3.5 Certification by a registered third party
+         0.78 given approved-document-p.md: AD P 3.8 Certification by a building control body
+         0.76 given approved-document-p.md: AD P 3.5 Certification by a registered third party (part 2 of 2)
+         0.76 given approved-document-p.md: AD P 3.1 Certification, inspection and testing: General (part 1 of 2)
+
+[ok  ] If I'm doing a bit of electrical work in a garden shed, does Part P apply if it gets its electricity from the house?
+       expect: AD P 2.2 Scope: where Part P applies | AD P 2.3 Scope: where Part P does not apply
+         0.80 given approved-document-p.md: AD P 2.2 Scope: where Part P applies
+         0.79 given approved-document-p.md: AD P 2.3 Scope: where Part P does not apply (part 1 of 2)
+         0.73 cut   approved-document-p.md: AD P 2.1 Application of Part P: General
+
+[ok  ] When will we have the materials delivered for this new job
+       expect: current-jobs.md: Job 1: Kitchen refit, Upton (Mrs Pritchard) | supplier.md: Deliveries
+         0.65 given current-jobs.md: Job 1: Kitchen refit, Upton (Mrs Pritchard)
+         0.65 given the-firm.md: Paperwork
+         0.64 given current-jobs.md: Job 2: Garden office, Greasby (Tom)
+
+[ok  ] The supplier has let us down again, can you pop up to Runcorn and get the parts direct?
+       expect: supplier.md: Other supplier | supplier.md: Counter hours and contact
+         0.60 given supplier.md: Other supplier
+         0.59 given supplier.md: Returns
+         0.59 given supplier.md: Supplier: Kettleworth Electrical Supplies
+
+[MISS] Hey Dave, hows the weather today?
+       expect: none
+         0.58 given current-jobs.md: Job 4: Callback, Heswall (Linda)
+         0.56 given the-firm.md: Rates
+         0.56 given the-firm.md: Paperwork
+
+[MISS] Dave, did you pick the new van up from Wrexham?
+       expect: none
+         0.63 given the-firm.md: Van
+         0.56 given current-jobs.md: Waiting list
+         0.53 given current-jobs.md: Job 4: Callback, Heswall (Linda)
+
+[MISS] Is Tyson ok? Havent seen him for a while.
+       expect: none
+         0.52 given current-jobs.md: Waiting list
+         0.52 given supplier.md: Returns
+         0.52 given the-firm.md: Test kit
+
+[MISS] Did you find the electrical fault at Mrs Robertsons house?
+       expect: none
+         0.60 given approved-document-p.md: AD P 2.2 Scope: where Part P applies
+         0.60 given approved-document-p.md: AD P 1.4 New dwellings
+         0.59 given current-jobs.md: Job 4: Callback, Heswall (Linda)
+
+[MISS] What's your plan for today?
+       expect: none
+         0.54 given the-firm.md: Rates
+         0.53 given current-jobs.md: Job 4: Callback, Heswall (Linda)
+         0.53 given current-jobs.md: Job 3: Fuse box change, Moreton (Gary)
+
+[MISS] What is the voltage rating on a UK household supply
+       expect: none
+         0.64 given approved-document-p.md: AD P Requirement P1: Performance
+         0.62 given approved-document-p.md: AD P 1.4 New dwellings
+         0.62 given approved-document-p.md: AD P Appendix A: Key terms (part 2 of 2)
+
+========================================================================
+
+document-worded  (15 questions)
+  given (Dave sees the right section)   15 of 15
+  found in top 3                        15 of 15
+  right section ranked first            12 of 15
+  found but cut by the cutoff or cap     0 of 15
+
+natural  (6 questions)
+  given (Dave sees the right section)    4 of 6
+  found in top 3                         4 of 6
+  right section ranked first             3 of 6
+  found but cut by the cutoff or cap     0 of 6
+
+not in library  (6 questions)
+  clean (nothing given)                  0 of 6
+
+Top score per question (highest first)
+  score  kind    top result right?  question
+  0.901  answer  yes                According to Approved Document M, what is the recommended he
+  0.880  answer  yes                When additions or alterations are made to an existing electr
+  0.871  answer  no                 Under regulation 12(6A), what three specific types of electr
+  0.861  answer  yes                Within how many days must an installer or their registration
+  0.842  answer  yes                Which standard is referenced in Appendix B as the IET Wiring
+  0.838  answer  yes                What are the three alternative procedures that can be used t
+  0.820  answer  no                 What voltage ranges must electrical installations operate at
+  0.812  answer  yes                What mounting height is suggested for consumer units in new 
+  0.798  answer  yes                If I'm doing a bit of electrical work in a garden shed, does
+  0.786  answer  yes                What is the primary objective of Requirement P1 under Part P
+  0.784  answer  no                 Quick question Dave, if someone isn't a registered competent
+  0.784  answer  no                 How is a special location defined horizontally in a room con
+  0.779  answer  yes                How is extra-low voltage defined in Appendix A?
+  0.779  answer  yes                Are domestic outbuildings like conservatories, porches, gree
+  0.755  answer  yes                What edition of BS 7671 does the 2013 approved document refe
+  0.753  answer  yes                When did the 2013 edition of Approved Document P take effect
+  0.726  answer  yes                What are the two primary categories of changes introduced in
+  0.685  answer  no                 Dave, what happens if I decide to replace my old consumer un
+  0.656  answer  no                 Hey Dave, if I'm adding a brand-new socket in the middle of 
+  0.654  answer  yes                When will we have the materials delivered for this new job
+  0.637  none    -                  What is the voltage rating on a UK household supply
+  0.626  none    -                  Dave, did you pick the new van up from Wrexham?
+  0.599  none    -                  Did you find the electrical fault at Mrs Robertsons house?
+  0.597  answer  yes                The supplier has let us down again, can you pop up to Runcor
+  0.577  none    -                  Hey Dave, hows the weather today?
+  0.539  none    -                  What's your plan for today?
+  0.523  none    -                  Is Tyson ok? Havent seen him for a while.
+
+Overall: 19 of 27 right
