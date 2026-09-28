@@ -67,3 +67,24 @@ without-notes runs are unaffected: EXPECT lines naming a file that isn't in the
 library are skipped.
 
 Raw output: `tests/results/notes/`.
+
+## Reply check: does Dave now answer the right way round?
+
+`tests/reply_check.py`, llama3.2:3b, library with notes, 3 fresh runs each.
+Read by eye, not blind-graded: a quick look, not a measurement.
+
+| Question | Right answer | Level 4 | With notes |
+|---|---|---|---|
+| P1 Is replacing a consumer unit notifiable? | Yes | 1 of 3 | **3 of 3** |
+| B2 Gary's fuse box swap, does it need notifying? | Yes | right way round, but cited made-up sections | 2 of 3 |
+| P4 Is replacing a broken light switch notifiable? | No | not graded | 2 of 3 |
+
+- P1, the Level 4 failure, is fixed in all three runs, citing AD P 2.5.
+- The two wrong replies had the right passages in front of them and
+  contradicted them: B2 run 2 said "not notifiable" after being given two
+  sections saying it is, and P4 run 1 said "notifiable" while quoting the
+  line that says it isn't. That's the 3B model, not the search.
+- P4 was the check for over-correction (the notes making everything sound
+  notifiable). One run of three went that way.
+
+Raw output: `tests/results/reply_check_notes.txt`.

@@ -1,0 +1,50 @@
+dave, llama3.2:3b, 80 passages
+
+========================================================================
+P1: Is replacing a consumer unit notifiable work?
+Correct: Yes. Replacing a consumer unit is notifiable (regulation 12(6A)(b), AD P 2.5).
+Given:  part-p-in-plain-words.md: Changing or replacing a fuse box (consumer unit)
+        part-p-in-plain-words.md: Replacing, repairing or maintaining things
+        current-jobs.md: Job 3: Fuse box change, Moreton (Gary)
+
+--- run 1 (60s)
+Bloody hell, it's notifiable. Check Part P, it says so.
+
+--- run 2 (14s)
+It's notifiable, like for like. You can't just replace a consumer unit with another one. That's notifiable, as per AD P 2.5. But swapping it for a new one, that's notifiable, whereas swapping sockets, switches, or light fittings, that's not. So, Gary's gotta get the paperwork, innit?
+
+--- run 3 (7s)
+It's notifiable, even like for like. From the AD P guide, paragraph 2.5. So, yeah, it is. Now, can we move on?
+
+========================================================================
+B2: Gary's getting his old fuse box swapped for a new consumer unit. Does that need notifying?
+Correct: Yes. Replacing a consumer unit is notifiable (AD P 2.5).
+Given:  current-jobs.md: Job 3: Fuse box change, Moreton (Gary)
+        part-p-in-plain-words.md: Do I need to tell building control? The short answer
+        part-p-in-plain-words.md: Changing or replacing a fuse box (consumer unit)
+
+--- run 1 (18s)
+It's notifiable, mate. You've got to tell building control or a registered competent person like yourself. Doesn't matter if it's a like-for-like swap, just replacing the fuse box.
+
+--- run 2 (9s)
+It's on the jobs sheet, paragraph 1. He's just getting a new fuse box swapped for a new consumer unit, no changes or additions. That's not notifiable, Gary won't need to tell building control.
+
+--- run 3 (15s)
+No danger, that's notifiable. According to Part P, replacing a fuse box or consumer unit is one of the jobs that need notifying. Don't be caught out by AD P 2.7, it's listed in AD P 2.5. Gary'll need to tell building control, or a registered competent person or third-party certifier who does it for him.
+
+========================================================================
+P4: Is replacing a broken light switch notifiable work?
+Correct: No. Replacements, repairs and maintenance are not notifiable anywhere (AD P 2.7).
+Given:  part-p-in-plain-words.md: Changing or replacing a fuse box (consumer unit)
+        part-p-in-plain-words.md: Replacing, repairing or maintaining things
+        part-p-in-plain-words.md: Adding a socket, a light or a spur
+
+--- run 1 (17s)
+It's notifiable, mate. AD P 2.7 says repairs and maintenance are not notifiable, but replacing a broken light switch with a new one is different.
+
+--- run 2 (14s)
+It's in the Part P guide, paragraph 2.7. Swapping a socket, switch, or light fitting for a new one, repairs, and maintenance are NOT notifiable, anywhere in the house, even in a bathroom. Replacing a broken light switch falls under that, so no, it's not notifiable work.
+
+--- run 3 (10s)
+It's in the Part P guide, paragraph 2.7. It says repairs and maintenance are NOT notifiable, anywhere in the house, even in a bathroom. So, no, replacing a broken light switch isn't notifiable work.
+
