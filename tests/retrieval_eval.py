@@ -90,14 +90,27 @@ def matches(expect, passage):
 
 
 def check_expects(questions, passages):
-    """Every EXPECT must name a real section, or the test is meaningless."""
-    bad = []
+    """Every question needs at least one EXPECT that names a real section,
+    or the test is meaningless. An EXPECT naming a file that isn't in this
+    library (e.g. notes being measured with and without) is only reported."""
+    sources = {p.source for p in passages}
+    bad, absent = [], []
     for q in questions:
+        live = [e for e in q["expect"] if any(matches(e, p) for p in passages)]
         for e in q["expect"]:
-            if not any(matches(e, p) for p in passages):
+            if e in live:
+                continue
+            src = e.split(": ", 1)[0] if ": " in e else None
+            if src and src.endswith((".md", ".txt")) and src not in sources:
+                absent.append(f"  line {q['line']}: {e}")
+            else:
                 bad.append(f"  line {q['line']}: {e}")
+        if q["expect"] and not live and not bad:
+            bad.append(f"  line {q['line']}: no EXPECT matches this library")
     if bad:
         sys.exit("These EXPECT lines don't match any section in the library:\n" + "\n".join(bad))
+    if absent:
+        print("Not in this library, so not counted:\n" + "\n".join(absent))
 
 
 def chat_settings():

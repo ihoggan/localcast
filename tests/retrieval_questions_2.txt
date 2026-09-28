@@ -1,0 +1,37 @@
+## natural
+
+Q: When the lady plugs in her new kettle the whole circuit trips, whats the issue
+EXPECT: none
+
+Q: The socket is overloaded and started to melt, this is an emergency now
+EXPECT: none
+
+Q: We have one switch already in the room to turn the lights on and off, can the socket me moved
+EXPECT: AD P 2.7 Non-notifiable work
+EXPECT: AD P 1.6 Additions and alterations to existing electrical installations
+EXPECT: part-p-in-plain-words.md: Adding a socket, a light or a spur
+
+Q: What is the voltage rating for a UK houshold
+EXPECT: none
+
+Q: The three pin plug has six wires going in to run two appliance, surely thats not safe
+EXPECT: none
+
+Q: Fuse board is shot, can you fit me a new one quickly
+EXPECT: AD P 2.5 Notifiable work
+EXPECT: part-p-in-plain-words.md: Changing or replacing a fuse box (consumer unit)
+EXPECT: part-p-in-plain-words.md: Do I need to tell building control? The short answer
+
+## not in library
+
+Q: Did that new tool you ordered arrive?
+EXPECT: none
+
+Q: You doing anything this weekend
+EXPECT: none
+
+Q: Hows Tyson, havent seen him around for a while
+EXPECT: none
+
+Q: Have you been able to contact that new supplier
+EXPECT: none

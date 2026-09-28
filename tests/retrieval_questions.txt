@@ -66,15 +66,19 @@ EXPECT: AD P Appendix B: Standards referred to
 Q: Hey Dave, if I'm adding a brand-new socket in the middle of my living room wall, do I actually need to notify anyone about it?
 ANSWER: No, additions to existing circuits outside special locations are not notifiable.
 EXPECT: AD P 2.7 Non-notifiable work
+EXPECT: part-p-in-plain-words.md: Adding a socket, a light or a spur
 
 Q: Dave, what happens if I decide to replace my old consumer unit? Is that something I can just do quietly without telling building control or getting certification?
 ANSWER: No, replacing a consumer unit is notifiable work.
 EXPECT: AD P 2.5 Notifiable work
+EXPECT: part-p-in-plain-words.md: Changing or replacing a fuse box (consumer unit)
+EXPECT: part-p-in-plain-words.md: Do I need to tell building control? The short answer
 
 Q: Quick question Dave, if someone isn't a registered competent person, can they still use a registered third party to certify notifiable work instead of going through building control?
 ANSWER: Yes, a registered third-party certifier is an alternative to building control.
 EXPECT: AD P Main changes in the 2013 edition
 EXPECT: AD P 3.5 Certification by a registered third party
+EXPECT: part-p-in-plain-words.md: Who signs it off, and the paperwork
 
 Q: If I'm doing a bit of electrical work in a garden shed, does Part P apply if it gets its electricity from the house?
 ANSWER: Yes, outbuildings that share electricity with a dwelling are not exempt.

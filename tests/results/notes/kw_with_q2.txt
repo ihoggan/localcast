@@ -1,0 +1,72 @@
+10 questions, 80 passages, settings {'library_passages': 3, 'library_max_chars': 2000, 'library_relative': 0.4, 'search': 'keyword', 'min_score': 0.0}
+
+[MISS] When the lady plugs in her new kettle the whole circuit trips, whats the issue
+       expect: none
+         7.54 given approved-document-p.md: AD P 2.8 Non-notifiable work: fixed electrical equipment
+         6.69 given part-p-in-plain-words.md: New circuits: cookers, showers, outdoor supplies
+         4.92 given part-p-in-plain-words.md: Adding a socket, a light or a spur
+
+[MISS] The socket is overloaded and started to melt, this is an emergency now
+       expect: none
+         3.33 given approved-document-p.md: AD P 1.6 Additions and alterations to existing electrical installations
+         3.08 given part-p-in-plain-words.md: Heights of sockets and switches in new houses
+         3.05 given part-p-in-plain-words.md: Adding a socket, a light or a spur
+
+[ok  ] We have one switch already in the room to turn the lights on and off, can the socket me moved
+       expect: AD P 2.7 Non-notifiable work | AD P 1.6 Additions and alterations to existing electrical installations | part-p-in-plain-words.md: Adding a socket, a light or a spur
+        18.15 given part-p-in-plain-words.md: Adding a socket, a light or a spur
+         9.36 given part-p-in-plain-words.md: Replacing, repairing or maintaining things
+         8.18 given part-p-in-plain-words.md: Changing or replacing a fuse box (consumer unit)
+
+[MISS] What is the voltage rating for a UK houshold
+       expect: none
+         5.18 given approved-document-p.md: AD P Appendix A: Key terms (part 1 of 2)
+         4.68 given approved-document-p.md: AD P Requirement P1: Performance
+         3.84 given approved-document-p.md: AD P 1.7 Additions and alterations: checking the existing installation
+
+[MISS] The three pin plug has six wires going in to run two appliance, surely thats not safe
+       expect: none
+         5.93 given part-p-in-plain-words.md: Do I have to bring the old wiring up to standard?
+         5.54 given current-jobs.md: Waiting list
+         4.37 given approved-document-p.md: AD P 3.1 Certification, inspection and testing: General (part 1 of 2)
+
+[ok  ] Fuse board is shot, can you fit me a new one quickly
+       expect: AD P 2.5 Notifiable work | part-p-in-plain-words.md: Changing or replacing a fuse box (consumer unit) | part-p-in-plain-words.md: Do I need to tell building control? The short answer
+         4.81 given part-p-in-plain-words.md: New circuits: cookers, showers, outdoor supplies
+         4.65 given part-p-in-plain-words.md: Do I need to tell building control? The short answer
+         4.51 given part-p-in-plain-words.md: Replacing, repairing or maintaining things
+
+[MISS] Did that new tool you ordered arrive?
+       expect: none
+         5.50 given current-jobs.md: Job 1: Kitchen refit, Upton (Mrs Pritchard)
+         2.62 given part-p-in-plain-words.md: New circuits: cookers, showers, outdoor supplies
+         2.34 given approved-document-p.md: AD P 1.4 New dwellings
+
+[MISS] You doing anything this weekend
+       expect: none
+         4.38 given supplier.md: Returns
+         4.27 given supplier.md: Deliveries
+
+[MISS] Hows Tyson, havent seen him around for a while
+       expect: none
+         5.17 given approved-document-p.md: AD P 2.6 Notifiable work in rooms containing a bath or shower
+
+[MISS] Have you been able to contact that new supplier
+       expect: none
+         5.06 given supplier.md: Other supplier
+         4.50 given supplier.md: Supplier: Kettleworth Electrical Supplies
+         4.43 given supplier.md: Counter hours and contact
+
+========================================================================
+
+natural  (6 questions)
+  given (Dave sees the right section)    2 of 2
+  found in top 3                         2 of 2
+  right section ranked first             1 of 2
+  found but cut by the cutoff or cap     0 of 2
+  clean (nothing given)                  0 of 4
+
+not in library  (4 questions)
+  clean (nothing given)                  0 of 4
+
+Overall: 2 of 10 right

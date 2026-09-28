@@ -1,0 +1,93 @@
+Not in this library, so not counted:
+  line 9: part-p-in-plain-words.md: Adding a socket, a light or a spur
+  line 20: part-p-in-plain-words.md: Changing or replacing a fuse box (consumer unit)
+  line 20: part-p-in-plain-words.md: Do I need to tell building control? The short answer
+Embedded 0 passages (the rest came from /home/iain/bubba/dave/embeddings.json)
+10 questions, 68 passages, settings {'library_passages': 3, 'library_max_chars': 2000, 'library_relative': 0.0, 'search': 'embed', 'min_score': 0.0, 'model': 'nomic-embed-text'}
+
+[MISS] When the lady plugs in her new kettle the whole circuit trips, whats the issue
+       expect: none
+         0.65 given current-jobs.md: Job 1: Kitchen refit, Upton (Mrs Pritchard)
+         0.62 given approved-document-p.md: AD P 2.6 Notifiable work in rooms containing a bath or shower
+         0.61 given supplier.md: Returns
+
+[MISS] The socket is overloaded and started to melt, this is an emergency now
+       expect: none
+         0.61 given current-jobs.md: Job 3: Fuse box change, Moreton (Gary)
+         0.59 given current-jobs.md: Job 1: Kitchen refit, Upton (Mrs Pritchard)
+         0.59 given the-firm.md: Test kit
+
+[MISS] We have one switch already in the room to turn the lights on and off, can the socket me moved
+       expect: AD P 2.7 Non-notifiable work | AD P 1.6 Additions and alterations to existing electrical installations | part-p-in-plain-words.md: Adding a socket, a light or a spur
+         0.68 given approved-document-p.md: AD P 1.4 New dwellings
+         0.64 given approved-document-p.md: AD P 2.6 Notifiable work in rooms containing a bath or shower
+         0.61 given approved-document-p.md: AD P 1.5 New dwellings formed by a change of use
+
+[MISS] What is the voltage rating for a UK houshold
+       expect: none
+         0.58 given approved-document-p.md: AD P Requirement P1: Performance
+         0.57 given approved-document-p.md: AD P Appendix A: Key terms (part 1 of 2)
+         0.57 given approved-document-p.md: AD P 1.4 New dwellings
+
+[MISS] The three pin plug has six wires going in to run two appliance, surely thats not safe
+       expect: none
+         0.64 given approved-document-p.md: AD P 2.9 Non-notifiable work: prefabricated modular wiring
+         0.63 given approved-document-p.md: AD P Appendix A: Key terms (part 2 of 2)
+         0.63 given approved-document-p.md: AD P 2.8 Non-notifiable work: fixed electrical equipment
+
+[MISS] Fuse board is shot, can you fit me a new one quickly
+       expect: AD P 2.5 Notifiable work | part-p-in-plain-words.md: Changing or replacing a fuse box (consumer unit) | part-p-in-plain-words.md: Do I need to tell building control? The short answer
+         0.68 given current-jobs.md: Job 3: Fuse box change, Moreton (Gary)
+         0.62 given current-jobs.md: Job 1: Kitchen refit, Upton (Mrs Pritchard)
+         0.62 given the-firm.md: Test kit
+
+[MISS] Did that new tool you ordered arrive?
+       expect: none
+         0.58 given current-jobs.md: Waiting list
+         0.57 given the-firm.md: Paperwork
+         0.57 given the-firm.md: Van
+
+[MISS] You doing anything this weekend
+       expect: none
+         0.58 given supplier.md: Counter hours and contact
+         0.56 given supplier.md: Deliveries
+         0.56 given current-jobs.md: Job 4: Callback, Heswall (Linda)
+
+[MISS] Hows Tyson, havent seen him around for a while
+       expect: none
+         0.49 given current-jobs.md: Job 4: Callback, Heswall (Linda)
+         0.48 given current-jobs.md: Waiting list
+         0.47 given the-firm.md: Test kit
+
+[MISS] Have you been able to contact that new supplier
+       expect: none
+         0.64 given supplier.md: Other supplier
+         0.62 given supplier.md: Supplier: Kettleworth Electrical Supplies
+         0.61 given supplier.md: Returns
+
+========================================================================
+
+natural  (6 questions)
+  given (Dave sees the right section)    0 of 2
+  found in top 3                         0 of 2
+  right section ranked first             0 of 2
+  found but cut by the cutoff or cap     0 of 2
+  clean (nothing given)                  0 of 4
+
+not in library  (4 questions)
+  clean (nothing given)                  0 of 4
+
+Top score per question (highest first)
+  score  kind    top result right?  question
+  0.679  answer  no                 We have one switch already in the room to turn the lights on
+  0.676  answer  no                 Fuse board is shot, can you fit me a new one quickly
+  0.645  none    -                  When the lady plugs in her new kettle the whole circuit trip
+  0.637  none    -                  Have you been able to contact that new supplier
+  0.635  none    -                  The three pin plug has six wires going in to run two applian
+  0.607  none    -                  The socket is overloaded and started to melt, this is an eme
+  0.584  none    -                  Did that new tool you ordered arrive?
+  0.584  none    -                  What is the voltage rating for a UK houshold
+  0.577  none    -                  You doing anything this weekend
+  0.495  none    -                  Hows Tyson, havent seen him around for a while
+
+Overall: 0 of 10 right
