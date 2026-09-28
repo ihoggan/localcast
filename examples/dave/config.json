@@ -1,0 +1,6 @@
+{
+  "model": "llama3.2:3b",
+  "temperature": 0.85,
+  "num_ctx": 4096,
+  "history_turns": 20
+}
