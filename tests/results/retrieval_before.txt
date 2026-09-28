@@ -1,0 +1,56 @@
+27 questions, 68 passages, settings {'library_passages': 3, 'library_max_chars': 2000, 'library_relative': 0.4}
+
+[MISS] Hey Dave, if I'm adding a brand-new socket in the middle of my living room wall, do I actually need to notify anyone about it?
+       expect: AD P 2.7 Non-notifiable work
+         7.47 given approved-document-p.md: AD P 1.4 New dwellings
+         6.17 given approved-document-p.md: AD P 2.6 Notifiable work in rooms containing a bath or shower
+         5.48 given approved-document-p.md: AD P 2.5 Notifiable work (part 2 of 2)
+
+[MISS] Dave, what happens if I decide to replace my old consumer unit? Is that something I can just do quietly without telling building control or getting certification?
+       expect: AD P 2.5 Notifiable work
+         9.33 given current-jobs.md: Job 3: Fuse box change, Moreton (Gary)
+         7.78 given approved-document-p.md: AD P 1.5 New dwellings formed by a change of use
+         7.33 given approved-document-p.md: AD P 1.4 New dwellings
+
+[MISS] Dave, did you pick the new van up from Wrexham?
+       expect: none
+         7.47 given the-firm.md: Van
+         2.80 cut   approved-document-p.md: AD P 1.4 New dwellings
+         2.47 cut   approved-document-p.md: AD P 1.6 Additions and alterations to existing electrical installations
+
+[MISS] Did you find the electrical fault at Mrs Robertsons house?
+       expect: none
+         4.57 given approved-document-p.md: AD P 2.2 Scope: where Part P applies
+         4.54 given approved-document-p.md: AD P 3.13 Inspection and testing of non-notifiable work
+         3.55 given current-jobs.md: Job 1: Kitchen refit, Upton (Mrs Pritchard)
+
+[MISS] What's your plan for today?
+       expect: none
+         2.52 given approved-document-p.md: AD P 1.2 Provision of information
+         2.23 given approved-document-p.md: AD P 2.5 Notifiable work (part 1 of 2)
+         2.14 cut   approved-document-p.md: AD P Main changes in the 2013 edition (part 1 of 2)
+
+[MISS] What is the voltage rating on a UK household supply
+       expect: none
+         4.95 given approved-document-p.md: AD P Appendix A: Key terms (part 1 of 2)
+         4.47 given approved-document-p.md: AD P Requirement P1: Performance
+         3.73 given approved-document-p.md: AD P 1.7 Additions and alterations: checking the existing installation
+
+========================================================================
+
+document-worded  (15 questions)
+  given (Dave sees the right section)   15 of 15
+  found in top 3                        15 of 15
+  right section ranked first            14 of 15
+  found but cut by the cutoff or cap     0 of 15
+
+natural  (6 questions)
+  given (Dave sees the right section)    4 of 6
+  found in top 3                         4 of 6
+  right section ranked first             3 of 6
+  found but cut by the cutoff or cap     0 of 6
+
+not in library  (6 questions)
+  clean (nothing given)                  2 of 6
+
+Overall: 21 of 27 right
